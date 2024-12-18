@@ -26,62 +26,131 @@ def home():
             <title>GRN PDF Processor</title>
             <style>
                 body {
-                    font-family: Arial, sans-serif;
-                    background-color: #f4f4f9;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #e9ecef;
                     margin: 0;
                     padding: 0;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     height: 100vh;
+                    color: #333;
                 }
                 .container {
-                    background-color: #fff;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    max-width: 500px;
+                    background-color: #ffffff;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+                    max-width: 600px;
                     width: 100%;
+                    text-align: center;
                 }
-                h1 {
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                    color: #333;
+                h1, h2 {
+                    font-weight: 600;
+                    margin-bottom: 15px;
                 }
                 form {
                     display: flex;
                     flex-direction: column;
+                    gap: 15px;
                 }
                 input[type="file"] {
-                    margin-bottom: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    color: #555;
                 }
                 input[type="submit"] {
-                    background-color: #007bff;
+                    background-color: #28a745;
                     color: #fff;
                     border: none;
-                    padding: 10px;
-                    border-radius: 4px;
+                    padding: 12px;
+                    border-radius: 5px;
                     cursor: pointer;
+                    font-size: 16px;
+                    opacity: 0.6;
+                    pointer-events: none;
                 }
                 input[type="submit"]:hover {
-                    background-color: #0056b3;
+                    background-color: #218838;
+                }
+                footer {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    color: #6c757d;
+                    text-align: center;
+                }
+                a {
+                    color: #007bff;
+                    text-decoration: none;
+                }
+                a:hover {
+                    text-decoration: underline;
+                }
+                .error-message {
+                    color: red;
+                    font-size: 14px;
+                    display: none;
+                    background-color: #ffc107;
+                    padding: 10px;
+                    border-radius: 5px;
+                    text-align: center;
+                    font-weight: bold;
+                    animation: shake 0.5s ease-in-out infinite;
+                }
+                @keyframes shake {
+                    0% { transform: translateX(0); }
+                    20% { transform: translateX(-10px); }
+                    40% { transform: translateX(10px); }
+                    60% { transform: translateX(-10px); }
+                    80% { transform: translateX(10px); }
+                    100% { transform: translateX(0); }
                 }
             </style>
+            <script>
+                function validateFiles() {
+                    const fileInput = document.getElementById('pdf_files');
+                    const uploadButton = document.getElementById('submitBtn');
+                    const uploadButton2 = document.getElementById('submitBtn2');
+                    const errorMessage = document.getElementById('error-message');
+
+                    if (fileInput.files.length === 0) {
+                        errorMessage.style.display = 'block';
+                        uploadButton.style.opacity = 0.6;
+                        uploadButton.style.pointerEvents = 'none';
+                        uploadButton2.style.opacity = 0.6;
+                        uploadButton2.style.pointerEvents = 'none';
+                    } else {
+                        errorMessage.style.display = 'none';
+                        uploadButton.style.opacity = 1;
+                        uploadButton.style.pointerEvents = 'auto';
+                        uploadButton2.style.opacity = 1;
+                        uploadButton2.style.pointerEvents = 'auto';
+                    }
+                }
+            </script>
         </head>
         <body>
             <div class="container">
-                <h1>GRN PDF Processor</h1>
+                <h2>Welcome to the GRN PDF Processor</h2>
+                <h2>Upload GRN .PDF Files</h2>
                 <form action="/process" method="post" enctype="multipart/form-data">
-                    <label for="pdf_files">Upload GRN PDF Files:</label>
-                    <input type="file" name="pdf_files" multiple>
-                    <input type="submit" value="Upload and Process">
+                    <input type="file" id="pdf_files" name="pdf_files" multiple onchange="validateFiles()">
+                    <input type="submit" id="submitBtn" value="Upload and Process">
+                    <div id="error-message" class="error-message">Please select at least one file to upload! 🫣</div>
                 </form>
                 <h2>Upload Edited Excel File</h2>
                 <form action="/upload_excel" method="post" enctype="multipart/form-data">
-                    <label for="excel_file">Upload Edited Excel File:</label>
                     <input type="file" name="excel_file">
-                    <input type="submit" value="Upload and Process Excel">
+                    <input type="submit" id="submitBtn2" value="Upload and Process Excel">
                 </form>
+                <footer>
+                    <p>Files will be deleted after 1 minute for privacy reasons.</p>
+                    <p>Created with ❤️ by 
+                        <a href="mailto:mumbai.sachin@gmail.com">Sachin Agarwal</a>
+                    </p>
+                </footer>
             </div>
         </body>
         </html>
@@ -153,156 +222,38 @@ def upload_excel():
                                        new_invoice_ref):
             pdf_document = fitz.open(pdf_filename)
             verdana_font = "Fonts/verdana.ttf"
-            verdana_bold_font = "Fonts/verdana-bold.ttf"
+            verdana_bold_font = "Fonts/verdana_bold.ttf"
+            for page in pdf_document:
+                page.insert_text((50, 50), f"Invoice Date: {new_invoice_date}",
+                                 fontname=verdana_font, fontsize=10)
+                page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}",
+                                 fontname=verdana_font, fontsize=10)
+            pdf_document.save(pdf_filename)
 
-            for page_num in range(len(pdf_document)):
-                page = pdf_document.load_page(page_num)
-                text_instances_date = page.search_for("Invoice Date:")
-                text_instances_ref = page.search_for("Invoice Ref #:")
+        for record in corrected_data:
+            old_filename = record["Filename"]
+            sanitized_filename = sanitize_filename(
+                f"corrected_{old_filename}")
+            new_file_path = os.path.join(UPLOAD_FOLDER, sanitized_filename)
+            shutil.copy(old_filename, new_file_path)
 
-                if text_instances_date:
-                    for inst in text_instances_date:
-                        x0, y0, x1, y1 = inst
-                        bg_color = (243 / 255, 243 / 255, 243 / 255)
-                        page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1),
-                                       color=bg_color,
-                                       fill=bg_color)
-                        adjusted_y0 = y1 - 1
-                        page.insert_text((x0, adjusted_y0),
-                                         "Invoice Date:",
-                                         fontsize=9,
-                                         fontname="verdana-bold",
-                                         fontfile=verdana_bold_font,
-                                         color=(0, 0, 0))
-                        page.insert_text((x0 + 68, adjusted_y0),
-                                         new_invoice_date,
-                                         fontsize=9,
-                                         fontname="verdana",
-                                         fontfile=verdana_font,
-                                         color=(0, 0, 0))
-                else:
-                    page.insert_text((50, 50),
-                                     f"Invoice Date: {new_invoice_date}",
-                                     fontsize=9,
-                                     fontname="verdana",
-                                     fontfile=verdana_font,
-                                     color=(0, 0, 0))
-
-                if text_instances_ref:
-                    for inst in text_instances_ref:
-                        x0, y0, x1, y1 = inst
-                        bg_color = (243 / 255, 243 / 255, 243 / 255)
-                        page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1),
-                                       color=bg_color,
-                                       fill=bg_color)
-                        adjusted_y0 = y1 - 2
-                        page.insert_text((x0, adjusted_y0),
-                                         "Invoice Ref #:",
-                                         fontsize=9,
-                                         fontname="verdana-bold",
-                                         fontfile=verdana_bold_font,
-                                         color=(0, 0, 0))
-                        page.insert_text((x0 + 73, adjusted_y0),
-                                         new_invoice_ref,
-                                         fontsize=9,
-                                         fontname="verdana",
-                                         fontfile=verdana_font,
-                                         color=(0, 0, 0))
-                else:
-                    page.insert_text((50, 70),
-                                     f"Invoice Ref #: {new_invoice_ref}",
-                                     fontsize=9,
-                                     fontname="verdana",
-                                     fontfile=verdana_font,
-                                     color=(0, 0, 0))
-
-            output_filename = pdf_filename.replace(".pdf", "_updated.pdf")
-            pdf_document.save(output_filename)
-            pdf_document.close()
-
-            print(f"Updated PDF saved as: {output_filename}")
-            return output_filename
-
-        updated_files = []
-        for item in corrected_data:
-            pdf_file_path = item["Filename"]
-            new_invoice_date = pd.to_datetime(
-                item["Invoice Date"],
-                dayfirst=True).strftime('%d/%m/%Y') if pd.notnull(
-                    item["Invoice Date"]) else None
-            new_invoice_ref = item["Invoice Ref"]
-            try:
-                updated_file = update_invoice_data_in_pdf(
-                    pdf_file_path, new_invoice_date, new_invoice_ref)
-                updated_files.append(updated_file)
-            except Exception as e:
-                print(f"Error updating {pdf_file_path}: {str(e)}")
+            update_invoice_data_in_pdf(new_file_path, record["Invoice Date"],
+                                       record["Invoice Ref"])
 
         @after_this_request
         def cleanup(response):
-
-            def delete_files():
-                time.sleep(60)  # Wait for 10 minutes before deleting files
-                shutil.rmtree(UPLOAD_FOLDER)
-                os.makedirs(UPLOAD_FOLDER)
-
-            threading.Thread(target=delete_files).start()
+            files = os.listdir(UPLOAD_FOLDER)
+            for file in files:
+                file_path = os.path.join(UPLOAD_FOLDER, file)
+                os.remove(file_path)
             return response
 
-        if updated_files:
-            zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-                for file_path in updated_files:
-                    zip_file.write(file_path, os.path.basename(file_path))
+        return jsonify({"message": "Files processed successfully"}), 200
 
-            zip_buffer.seek(0)
-            return send_file(zip_buffer,
-                             download_name='updated_files.zip',
-                             as_attachment=True)
-
-        else:
-            return jsonify({"message": "No PDF files were updated."})
     except Exception as e:
-        print(f"Error processing Excel file: {str(e)}")
+        print(f"Error uploading excel file: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-import logging
-
-# Configure logging
-logging.basicConfig(filename='error.log', level=logging.ERROR)
-
-# Your Flask app setup
-from flask import Flask, request
-
-app = Flask(__name__)
-
-# Your routes and handlers
-@app.route('/')
-def home():
-    return "Welcome to the app!"
-
-@app.route('/process', methods=['POST'])
-def process_endpoint():
-    try:
-        # Logic to process request
-        # Example: process_file(request.form['file_path'])
-        return "File processed successfully", 200
-    except Exception as e:
-        logging.error(f"Error in /process endpoint: {e}")
-        return "An error occurred while processing the file", 500
-
-@app.route('/upload_excel', methods=['POST'])
-def upload_excel_endpoint():
-    try:
-        # Logic to upload and handle Excel files
-        # Example: process_file(request.files['excel_file'])
-        return "File uploaded and processed successfully", 200
-    except Exception as e:
-        logging.error(f"Error in /upload_excel endpoint: {e}")
-        return "An error occurred while uploading the file", 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=8080)
