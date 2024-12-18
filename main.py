@@ -269,3 +269,40 @@ def upload_excel():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+import logging
+
+# Configure logging
+logging.basicConfig(filename='error.log', level=logging.ERROR)
+
+# Your Flask app setup
+from flask import Flask, request
+
+app = Flask(__name__)
+
+# Your routes and handlers
+@app.route('/')
+def home():
+    return "Welcome to the app!"
+
+@app.route('/process', methods=['POST'])
+def process_endpoint():
+    try:
+        # Logic to process request
+        # Example: process_file(request.form['file_path'])
+        return "File processed successfully", 200
+    except Exception as e:
+        logging.error(f"Error in /process endpoint: {e}")
+        return "An error occurred while processing the file", 500
+
+@app.route('/upload_excel', methods=['POST'])
+def upload_excel_endpoint():
+    try:
+        # Logic to upload and handle Excel files
+        # Example: process_file(request.files['excel_file'])
+        return "File uploaded and processed successfully", 200
+    except Exception as e:
+        logging.error(f"Error in /upload_excel endpoint: {e}")
+        return "An error occurred while uploading the file", 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
