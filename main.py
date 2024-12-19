@@ -176,8 +176,12 @@ def upload_excel():
                                  fontname="helv", fontsize=10)
                 page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}",
                                  fontname="helv", fontsize=10)
-            pdf_document.save(pdf_filename)
+            output_filename = pdf_filename.replace(".pdf", "_updated.pdf")
+            pdf_document.save(output_filename, incremental=True)
+            pdf_document.close()
+            return output_filename
 
+        updated_files = []
         for record in corrected_data:
             old_filename = record["Filename"]
             sanitized_filename = sanitize_filename(
@@ -185,8 +189,9 @@ def upload_excel():
             new_file_path = os.path.join(UPLOAD_FOLDER, sanitized_filename)
             shutil.copy(old_filename, new_file_path)
 
-            update_invoice_data_in_pdf(new_file_path, record["Invoice Date"],
-                                       record["Invoice Ref"])
+            updated_file = update_invoice_data_in_pdf(new_file_path, record["Invoice Date"],
+                                                      record["Invoice Ref"])
+            updated_files.append(updated_file)
 
         @after_this_request
         def cleanup(response):
@@ -196,7 +201,18 @@ def upload_excel():
                 os.remove(file_path)
             return response
 
-        return jsonify({"message": "Files processed successfully"}), 200
+        if updated_files:
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+                for file_path in updated_files:
+                    zip_file.write(file_path, os.path.basename(file_path))
+
+            zip_buffer.seek(0)
+            return send_file(zip_buffer,
+                             download_name='updated_files.zip',
+                             as_attachment=True)
+        else:
+            return jsonify({"message": "No PDF files were updated."})
 
     except Exception as e:
         print(f"Error uploading excel file: {str(e)}")
