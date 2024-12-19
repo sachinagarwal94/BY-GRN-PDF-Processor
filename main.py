@@ -26,129 +26,72 @@ def home():
             <title>GRN PDF Processor</title>
             <style>
                 body {
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background-color: #e9ecef;
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f9;
                     margin: 0;
                     padding: 0;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     height: 100vh;
-                    color: #333;
                 }
                 .container {
-                    background-color: #ffffff;
-                    padding: 30px;
-                    border-radius: 10px;
-                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-                    max-width: 600px;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    max-width: 500px;
                     width: 100%;
-                    text-align: center;
                 }
-                h1, h2 {
-                    font-weight: 600;
-                    margin-bottom: 15px;
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                    color: #333;
                 }
                 form {
                     display: flex;
                     flex-direction: column;
-                    gap: 15px;
                 }
                 input[type="file"] {
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    font-size: 14px;
-                    color: #555;
+                    margin-bottom: 10px;
                 }
                 input[type="submit"] {
-                    background-color: #28a745;
+                    background-color: #007bff;
                     color: #fff;
                     border: none;
-                    padding: 12px;
-                    border-radius: 5px;
+                    padding: 10px;
+                    border-radius: 4px;
                     cursor: pointer;
-                    font-size: 16px;
-                    opacity: 0.6;
-                    pointer-events: none;
                 }
                 input[type="submit"]:hover {
-                    background-color: #218838;
+                    background-color: #0056b3;
                 }
                 footer {
                     margin-top: 20px;
-                    font-size: 14px;
-                    color: #6c757d;
+                    font-size: 12px;
+                    color: #777;
                     text-align: center;
-                }
-                a {
-                    color: #007bff;
-                    text-decoration: none;
-                }
-                a:hover {
-                    text-decoration: underline;
-                }
-                .error-message {
-                    color: red;
-                    font-size: 14px;
-                    display: none;
-                    background-color: #ffc107;
-                    padding: 10px;
-                    border-radius: 5px;
-                    text-align: center;
-                    font-weight: bold;
-                    animation: shake 0.5s ease-in-out infinite;
-                }
-                @keyframes shake {
-                    0% { transform: translateX(0); }
-                    20% { transform: translateX(-10px); }
-                    40% { transform: translateX(10px); }
-                    60% { transform: translateX(-10px); }
-                    80% { transform: translateX(10px); }
-                    100% { transform: translateX(0); }
                 }
             </style>
-            <script>
-                function validateFiles() {
-                    const fileInput = document.getElementById('pdf_files');
-                    const uploadButton = document.getElementById('submitBtn');
-                    const uploadButton2 = document.getElementById('submitBtn2');
-                    const errorMessage = document.getElementById('error-message');
-
-                    if (fileInput.files.length === 0) {
-                        errorMessage.style.display = 'block';
-                        uploadButton.style.opacity = 0.6;
-                        uploadButton.style.pointerEvents = 'none';
-                        uploadButton2.style.opacity = 0.6;
-                        uploadButton2.style.pointerEvents = 'none';
-                    } else {
-                        errorMessage.style.display = 'none';
-                        uploadButton.style.opacity = 1;
-                        uploadButton.style.pointerEvents = 'auto';
-                        uploadButton2.style.opacity = 1;
-                        uploadButton2.style.pointerEvents = 'auto';
-                    }
-                }
-            </script>
         </head>
         <body>
             <div class="container">
-                <h2>Welcome to the GRN PDF Processor</h2>
-                <h2>Upload GRN .PDF Files</h2>
+                <h2>GRN PDF Processor</h2>
                 <form action="/process" method="post" enctype="multipart/form-data">
-                    <input type="file" id="pdf_files" name="pdf_files" multiple onchange="validateFiles()">
-                    <input type="submit" id="submitBtn" value="Upload and Process">
-                    <div id="error-message" class="error-message">Please select at least one file to upload! 🫣</div>
+                    <label for="pdf_files">Upload GRN PDF Files:</label>
+                    <input type="file" name="pdf_files" multiple>
+                    <input type="submit" value="Upload and Process">
                 </form>
                 <h2>Upload Edited Excel File</h2>
                 <form action="/upload_excel" method="post" enctype="multipart/form-data">
+                    <label for="excel_file">Upload Edited Excel File:</label>
                     <input type="file" name="excel_file">
-                    <input type="submit" id="submitBtn2" value="Upload and Process Excel">
+                    <input type="submit" value="Upload and Process Excel">
                 </form>
                 <footer>
                     <p>Files will be deleted after 1 minute for privacy reasons.</p>
                     <p>Created with ❤️ by 
-                        <a href="mailto:mumbai.sachin@gmail.com">Sachin Agarwal</a>
+                        <a href="mailto:mumbai.sachin@gmail.com" style="text-decoration: none; color: inherit;">Sachin Agarwal</a>
                     </p>
                 </footer>
             </div>
