@@ -177,7 +177,7 @@ def upload_excel():
                 page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}",
                                  fontname="helv", fontsize=10)
             output_filename = pdf_filename.replace(".pdf", "_updated.pdf")
-            pdf_document.save(output_filename, incremental=True)
+            pdf_document.save(output_filename)
             pdf_document.close()
             return output_filename
 
@@ -220,4 +220,4 @@ def upload_excel():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)
