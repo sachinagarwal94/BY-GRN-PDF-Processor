@@ -1,14 +1,18 @@
+import subprocess
+import os
 from flask import Flask, request, send_file, jsonify, after_this_request, render_template_string
 import pandas as pd
 import re
 import fitz  # PyMuPDF
 from PyPDF2 import PdfReader, PdfWriter
 import io
-import os
 import shutil
 import threading
 import time
 import zipfile
+
+# Clone the GitHub repository containing the font files
+subprocess.run(['git', 'clone', 'https://github.com/yourusername/yourrepository.git'])
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploaded_files'
@@ -164,8 +168,8 @@ def upload_excel():
         def update_invoice_data_in_pdf(pdf_filename, new_invoice_date,
                                        new_invoice_ref):
             pdf_document = fitz.open(pdf_filename)
-            verdana_font = "Fonts/verdana.ttf"
-            verdana_bold_font = "Fonts/verdana_bold.ttf"
+            verdana_font = "yourrepository/Fonts/verdana.ttf"
+            verdana_bold_font = "yourrepository/Fonts/verdana_bold.ttf"
             for page in pdf_document:
                 page.insert_text((50, 50), f"Invoice Date: {new_invoice_date}",
                                  fontname=verdana_font, fontsize=10)
