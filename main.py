@@ -18,6 +18,9 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploaded_files'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Define the font paths
+verdana_font_path = os.path.join('yourrepository', 'Fonts', 'verdana.ttf')
+verdana_bold_font_path = os.path.join('yourrepository', 'Fonts', 'verdana_bold.ttf')
 
 @app.route('/')
 def home():
@@ -168,13 +171,11 @@ def upload_excel():
         def update_invoice_data_in_pdf(pdf_filename, new_invoice_date,
                                        new_invoice_ref):
             pdf_document = fitz.open(pdf_filename)
-            verdana_font = "yourrepository/Fonts/verdana.ttf"
-            verdana_bold_font = "yourrepository/Fonts/verdana_bold.ttf"
             for page in pdf_document:
                 page.insert_text((50, 50), f"Invoice Date: {new_invoice_date}",
-                                 fontname=verdana_font, fontsize=10)
+                                 fontname="helv", fontsize=10)
                 page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}",
-                                 fontname=verdana_font, fontsize=10)
+                                 fontname="helv", fontsize=10)
             pdf_document.save(pdf_filename)
 
         for record in corrected_data:
