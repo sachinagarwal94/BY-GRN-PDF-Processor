@@ -3,3 +3,5 @@ pandas
 pymupdf
 pypdf2
 openpyxl
+fitz
+werkzeug
