@@ -60,7 +60,7 @@ def update_invoice_data_in_pdf(pdf_filename, new_invoice_date, new_invoice_ref):
 
     print(f"Updated PDF saved as: {output_filename}")
     return output_filename
-
+    
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -76,23 +76,23 @@ def process():
         data = []
 
         def extract_invoice_data(pdf_file_path):
-            invoice_date = None
-            invoice_ref = None
-            try:
-                reader = PdfReader(pdf_file_path)
-                for page in reader.pages:
-                    text = page.extract_text()
-                    date_match = re.search(r"Invoice Date:\s*(\d{2}/\d{2}/\d{4})", text)
-                    if date_match:
-                        invoice_date = date_match.group(1)
-                    if "Invoice Ref #:" in text:
-                        start_idx = text.find("Invoice Ref #:") + len("Invoice Ref #:")
-                        end_idx = text.find("\n", start_idx)
-                        invoice_ref = text[start_idx:end_idx].strip()
-            except Exception as e:
-                print(f"Error extracting data from {pdf_file_path}: {str(e)}")
-            return invoice_date, invoice_ref
-
+    invoice_date = None
+    invoice_ref = None
+    try:
+        reader = PdfReader(pdf_file_path)
+        for page in reader.pages:
+            text = page.extract_text()
+            date_match = re.search(r"Invoice Date:\s*(\d{2}/\d{2}/\d{4})", text)
+            if date_match:
+                invoice_date = date_match.group(1)
+            if "Invoice Ref #:" in text:
+                start_idx = text.find("Invoice Ref #:") + len("Invoice Ref #:")
+                end_idx = text.find("\n", start_idx)
+                invoice_ref = text[start_idx:end_idx].strip()
+    except Exception as e:
+        print(f"Error extracting data from {pdf_file_path}: {str(e)}")
+    return invoice_date, invoice_ref
+    
         for file in files:
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             if os.path.isdir(file_path):
