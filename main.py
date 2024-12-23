@@ -15,6 +15,52 @@ app.secret_key = 'supersecretkey'  # Needed for flash messages
 UPLOAD_FOLDER = 'uploaded_files'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+def update_invoice_data_in_pdf(pdf_filename, new_invoice_date, new_invoice_ref):
+    pdf_document = fitz.open(pdf_filename)
+    verdana_font = "Fonts/verdana.ttf"
+    verdana_bold_font = "Fonts/verdana-bold.ttf"
+
+    # Create a new PDF writer
+    new_pdf_document = fitz.open()
+
+    for page_num in range(len(pdf_document)):
+        page = pdf_document.load_page(page_num)
+        new_page = new_pdf_document.new_page(width=page.rect.width, height=page.rect.height)
+        new_page.show_pdf_page(new_page.rect, pdf_document, page_num)
+
+        text_instances_date = page.search_for("Invoice Date:")
+        text_instances_ref = page.search_for("Invoice Ref #:")
+
+        if text_instances_date:
+            for inst in text_instances_date:
+                x0, y0, x1, y1 = inst
+                bg_color = (243 / 255, 243 / 255, 243 / 255)
+                new_page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1), color=bg_color, fill=bg_color)
+                adjusted_y0 = y1 - 1
+                new_page.insert_text((x0, adjusted_y0), "Invoice Date:", fontsize=9, fontname="verdana-bold", fontfile=verdana_bold_font, color=(0, 0, 0))
+                new_page.insert_text((x0 + 68, adjusted_y0), new_invoice_date, fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
+        else:
+            new_page.insert_text((50, 50), f"Invoice Date: {new_invoice_date}", fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
+
+        if text_instances_ref:
+            for inst in text_instances_ref:
+                x0, y0, x1, y1 = inst
+                bg_color = (243 / 255, 243 / 255, 243 / 255)
+                new_page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1), color=bg_color, fill=bg_color)
+                adjusted_y0 = y1 - 2
+                new_page.insert_text((x0, adjusted_y0), "Invoice Ref #:", fontsize=9, fontname="verdana-bold", fontfile=verdana_bold_font, color=(0, 0, 0))
+                new_page.insert_text((x0 + 73, adjusted_y0), new_invoice_ref, fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
+        else:
+            new_page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}", fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
+
+    output_filename = pdf_filename.replace(".pdf", "_updated.pdf")
+    new_pdf_document.save(output_filename)  # Save the new PDF
+    new_pdf_document.close()
+    pdf_document.close()
+
+    print(f"Updated PDF saved as: {output_filename}")
+    return output_filename
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -97,45 +143,6 @@ def upload_excel():
 
         def sanitize_filename(filename):
             return re.sub(r'[<>:"/\\|?*]', '', filename)
-
-        def update_invoice_data_in_pdf(pdf_filename, new_invoice_date, new_invoice_ref):
-            pdf_document = fitz.open(pdf_filename)
-            verdana_font = "Fonts/verdana.ttf"
-            verdana_bold_font = "Fonts/verdana-bold.ttf"
-
-            for page_num in range(len(pdf_document)):
-                page = pdf_document.load_page(page_num)
-                text_instances_date = page.search_for("Invoice Date:")
-                text_instances_ref = page.search_for("Invoice Ref #:")
-
-                if text_instances_date:
-                    for inst in text_instances_date:
-                        x0, y0, x1, y1 = inst
-                        bg_color = (243 / 255, 243 / 255, 243 / 255)
-                        page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1), color=bg_color, fill=bg_color)
-                        adjusted_y0 = y1 - 1
-                        page.insert_text((x0, adjusted_y0), "Invoice Date:", fontsize=9, fontname="verdana-bold", fontfile=verdana_bold_font, color=(0, 0, 0))
-                        page.insert_text((x0 + 68, adjusted_y0), new_invoice_date, fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
-                else:
-                    page.insert_text((50, 50), f"Invoice Date: {new_invoice_date}", fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
-
-                if text_instances_ref:
-                    for inst in text_instances_ref:
-                        x0, y0, x1, y1 = inst
-                        bg_color = (243 / 255, 243 / 255, 243 / 255)
-                        page.draw_rect(fitz.Rect(x0, y0, x1 + 100, y1), color=bg_color, fill=bg_color)
-                        adjusted_y0 = y1 - 2
-                        page.insert_text((x0, adjusted_y0), "Invoice Ref #:", fontsize=9, fontname="verdana-bold", fontfile=verdana_bold_font, color=(0, 0, 0))
-                        page.insert_text((x0 + 73, adjusted_y0), new_invoice_ref, fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
-                else:
-                    page.insert_text((50, 70), f"Invoice Ref #: {new_invoice_ref}", fontsize=9, fontname="verdana", fontfile=verdana_font, color=(0, 0, 0))
-
-            output_filename = pdf_filename.replace(".pdf", "_updated.pdf")
-            pdf_document.save(output_filename)
-            pdf_document.close()
-
-            print(f"Updated PDF saved as: {output_filename}")
-            return output_filename
 
         updated_files = []
         for item in corrected_data:
