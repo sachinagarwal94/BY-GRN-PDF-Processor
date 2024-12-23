@@ -118,7 +118,7 @@ def process():
         @after_this_request
         def cleanup(response):
             def delete_files():
-                time.sleep(60)  # Wait for 1 minute before deleting files
+                time.sleep(300)  # Wait for 1 minute before deleting files
                 shutil.rmtree(UPLOAD_FOLDER)
                 os.makedirs(UPLOAD_FOLDER)
 
